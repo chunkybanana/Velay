@@ -1,6 +1,6 @@
 import cmath, copy, functools, hashlib, itertools, locale, math, operator, re, sys, time
 
-from .utils import attrdict, lazy_import
+from utils import attrdict, lazy_import
 
 random, sympy, urllib_request = lazy_import('random sympy urllib.request')
 
@@ -774,27 +774,11 @@ def parse_code(code):
 
 def parse_literal(literal_match):
 	literal = literal_match.group(0)
-	if literal[0] in '”⁾':
-		return repr(literal[1:].replace('¶', '\n'))
-	elif literal[0] == '“':
-		if literal[-1] in '«»‘’”':
-			mode = literal[-1]
-			literal = literal[:-1]
+	if literal[0] == '`':
+		if literal[-1] == '`':
+			return literal[1:-1]
 		else:
-			mode = ''
-		parsed = literal.split('“')[1:]
-		if   mode == '»':
-			parsed = [sss(string).replace('¶', '\n') for string in parsed]
-		elif mode == '‘':
-			parsed = [[code_page.find(char) for char in string] for string in parsed]
-		elif mode == '’':
-			parsed = [from_base([code_page.find(char) + 1 for char in string], 250) for string in parsed]
-		else:
-			parsed = [string.replace('¶', '\n') for string in parsed]
-		if mode not in '‘’':
-			parsed = [[string] if len(string) == 1 else string for string in parsed]
-		if len(parsed) == 1:
-			parsed = parsed[0]
+			return literal[1:]
 	elif literal[0] == '⁽':
 		parsed = from_base([code_page.find(char) + 1 for char in literal[1:]], 250)
 		parsed += parsed > 31500 and -62850 or 750
@@ -2981,13 +2965,13 @@ quicks = {
 			call = lambda x = None, y = None: variadic_link(links[0], (x, y)) if variadic_link(links[2], (x, y)) else variadic_link(links[1], (x, y))
 		)]
 	),
-	'`': attrdict(
-		condition = lambda links: links,
-		quicklink = lambda links, outmost_links, index: [attrdict(
-			arity = 1,
-			call = lambda z: dyadic_link(links[0], (z, z))
-		)]
-	),
+	#'`': attrdict(
+	#	condition = lambda links: links,
+	#	quicklink = lambda links, outmost_links, index: [attrdict(
+	#		arity = 1,
+	#		call = lambda z: dyadic_link(links[0], (z, z))
+	#	)]
+	#),
 	'⁺': attrdict(
 		condition = lambda links: links,
 		quicklink = lambda links, outmost_links, index: links * 2
@@ -3137,7 +3121,7 @@ chain_separators = {
 }
 default_chain_separation = (-1, '', True)
 str_arities = ''.join(chain_separators.keys())
-str_strings = '“[^«»‘’”]*[«»‘’”]?'
+str_strings = r'(?:`(?:\\[\\`]|[^`])*`?|».*»|«.*«)'
 str_charlit = '”.'
 str_chrpair = '⁾..'
 str_intpair = '⁽..'

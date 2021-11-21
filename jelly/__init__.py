@@ -1,6 +1,6 @@
 from sys import stderr
 
-from .interpreter import *
+from interpreter import *
 
 def main(code, args, end):
 	for index in range(min(7, len(args))):

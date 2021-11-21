@@ -6,7 +6,8 @@ if __package__ == '':
 
 	path[0] = dirname(path[0])
 
-from jelly import code_page, main, try_eval
+from interpreter import code_page, try_eval
+from __init__ import main
 from sys import argv
 
 flag_utf8 = False
